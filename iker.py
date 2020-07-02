@@ -6,7 +6,7 @@ https://labs.portcullis.co.uk/tools/iker/
 
 Modifications from original v1.0 script:
 	Added shebang for python binary above
-	
+
 Modifications from v1.1 script:
 	Added all known algorithms
 	Added Python2+ and Python3+ support
@@ -15,31 +15,20 @@ Modifications from v1.1 script:
 	Fixed grammar and updated technical terms (key exchange over Diffie-Hellman)
 '''
 ###############################################################################
-### iker.py
-###
-### This tool can be used to analyze the security of a IPsec based VPN.
-###
-### This script is under GPL v3 License:
-###
-###                                http://www.gnu.org/licenses/gpl-3.0.html
-###
-### From a IP address/range or a list of them, iker.py uses ike-scan to
-### look for common misconfiguration in IKE implementations.
-###
-### In this version, iker does:
-###
-### * VPNs discovering
-### * check for IKE v2 support
-### * vendor IDs (VID) extraction
-### * implementation guessing (backoff)
-### * list supported transforms in Main Mode
-### * check aggressive mode and list supported transforms in this mode
-### * enumerate valid client/group IDs in aggressive mode
-### * analyze results to extract actual issues
-### * support 2 output formats
-###
-### Original author: Julio Gomez Ortega (JGO@portcullis-security.com)
-###
+# iker.py
+#
+# This tool can be used to analyze the security of a IPsec based VPN.
+#
+# This script is under GPL v3 License:
+#
+#                                http://www.gnu.org/licenses/gpl-3.0.html
+#
+# From a IP address/range or a list of them, iker.py uses ike-scan to
+# look for common misconfiguration in IKE implementations.
+#
+#
+# Original author: Julio Gomez Ortega (JGO@portcullis-security.com)
+#
 ###############################################################################
 
 from sys import exit, stdout
@@ -126,13 +115,12 @@ FLAW_AGGR_GRP_NO_ENC = "Aggressive Mode transmits group name without encryption"
 FLAW_CID_ENUM = "Client IDs could be enumerated which should be restricted to only necessary parties or disabled"
 
 
+###############################################################################
+# Methods
+###############################################################################
 
 ###############################################################################
-### Methods
-###############################################################################
-
-###############################################################################
-def welcome ():
+def welcome():
 	'''This method prints a welcome message.'''
 
 	print('''
@@ -145,14 +133,15 @@ The ike-scan based script that checks for security flaws in IPsec-based VPNs.
 
 
 ###############################################################################
-def checkPrivileges ():
+def checkPrivileges():
 	'''This method checks if the script was launched with root privileges.
 	@return True if it was launched with root privs and False in other case.'''
 
 	return geteuid() == 0
 
+
 ###############################################################################
-def getArguments ():
+def getArguments():
 	'''This method parse the command line.
 	@return the arguments received and a list of targets.'''
 	global VERBOSE
@@ -187,32 +176,32 @@ def getArguments ():
 	args = parser.parse_args()
 
 	if args.target:
-		if re.search(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', args.target): # did not use \d shorthand since it searches ALL UNIX digits and is slower
-			targets.append (args.target)
+		if re.search(r'[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+', args.target):  # did not use \d shorthand since it searches ALL UNIX digits and is slower
+			targets.append(args.target)
 		else:
 			print("\033[91m[*]\033[0m You need to specify a target in CIDR notation or an input file (-i).")
-			parser.parse_args (["-h"])
+			parser.parse_args(["-h"])
 			exit (1)
 
 	if args.input:
 		try:
-			f = open (args.input, "r")
-			targets.extend (f.readlines())
-			f.close ()
+			f = open(args.input, "r")
+			targets.extend(f.readlines())
+			f.close()
 		except:
 			print("\033[91m[*]\033[0m The input file specified ('%s') could not be opened." % args.input)
 
 	if args.output:
 		try:
-			f = open (args.output, "w")
-			f.close ()
+			f = open(args.output, "w")
+			f.close()
 		except:
 			print("\033[91m[*]\033[0m The output file specified ('%s') could not be opened/created." % args.output)
 
 	if not targets:
 		print("\033[91m[*]\033[0m You need to specify a target in CIDR notation or an input file (-i).")
-		parser.parse_args (["-h"])
-		exit (1)
+		parser.parse_args(["-h"])
+		exit(1)
 
 	if args.verbose:
 		VERBOSE = True
@@ -303,7 +292,7 @@ def printMessage (message, path=None):
 
 
 ###############################################################################
-def launchProccess (command):
+def launchProcess (command):
 	'''Launch a command in a different process and return the process.'''
 
 	process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -373,7 +362,7 @@ def checkIkeScan ():
 	'''This method checks for the ike-scan location.
 	@return True if ike-scan was found and False in other case.'''
 
-	#proccess = launchProccess ("%s --version" % FULLIKESCANPATH)
+	#proccess = launchProcess ("%s --version" % FULLIKESCANPATH)
 	proccess = subprocess.Popen("%s --version" % FULLIKESCANPATH, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 	proccess.wait()
 
@@ -398,7 +387,7 @@ def discovery (args, targets, vpns):
 	# Launch ike-scan for each target and parse the output
 	for target in targets:
 
-		process = launchProccess ("%s -M %s" % (FULLIKESCANPATH, target))
+		process = launchProcess ("%s -M %s" % (FULLIKESCANPATH, target))
 		process.wait()
 
 		ip = None
@@ -450,7 +439,7 @@ def checkIKEv2 (args, targets, vpns):
 		# Check the IKE v2 support
 		for target in targets:
 
-			process = launchProccess ("%s -2 -M %s" % (FULLIKESCANPATH, target))
+			process = launchProcess ("%s -2 -M %s" % (FULLIKESCANPATH, target))
 			process.wait()
 
 			ip = None
@@ -506,7 +495,7 @@ def checkIKEv2 (args, targets, vpns):
 
 			#vpns[ip]["v2"] = False
 
-			#process = launchProccess ("%s -2 -M %s" % (FULLIKESCANPATH, ip))
+			#process = launchProcess ("%s -2 -M %s" % (FULLIKESCANPATH, ip))
 			#process.wait()
 
 			#for line in process.stdout.readlines():
@@ -579,7 +568,7 @@ def fingerprintShowbackoff (args, vpns, transform="", vpnip=""):
 			if vpnip and vpnip != ip:
 				continue
 
-			process = launchProccess ("%s --showbackoff %s %s" % (FULLIKESCANPATH, ((transform and ("--trans="+transform) or transform)), ip))
+			process = launchProcess ("%s --showbackoff %s %s" % (FULLIKESCANPATH, ((transform and ("--trans="+transform) or transform)), ip))
 			vpns[ip]["showbackoff"] = ""
 			process.wait()
 
@@ -628,7 +617,7 @@ def checkEncryptionAlgs (args, vpns):
 					for auth in AUTHLIST:
 						for group in GROUPLIST:
 
-							process = launchProccess ("%s -M --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, enc, hsh, auth, group, ip))
+							process = launchProccss ("%s -M --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, enc, hsh, auth, group, ip))
 							process.wait()
 
 							output = process.stdout.read()
@@ -684,7 +673,7 @@ def checkAggressive (args, vpns):
 					for auth in AUTHLIST:
 						for group in GROUPLIST:
 
-							process = launchProccess ("%s -M --aggressive -P%s_handshake.txt --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, ip, enc, hsh, auth, group, ip))
+							process = launchProcess ("%s -M --aggressive -P%s_handshake.txt --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, ip, enc, hsh, auth, group, ip))
 							process.wait()
 
 							output = process.stdout.read()
@@ -730,7 +719,7 @@ def enumerateGroupIDCiscoDPD (args, vpns, ip):
 
 	# Check if possible
 
-	process = launchProccess ("%s --aggressive --trans=%s --id=badgroupiker573629 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
+	process = launchProcess ("%s --aggressive --trans=%s --id=badgroupiker573629 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 	process.wait()
 
 	possible = True
@@ -751,7 +740,7 @@ def enumerateGroupIDCiscoDPD (args, vpns, ip):
 			for cid in fdict:
 				cid = cid.strip()
 
-				process = launchProccess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
+				process = launchProcess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
 				process.wait()
 
 				output = process.stdout.readlines()[1].strip()
@@ -775,7 +764,7 @@ def enumerateGroupIDCiscoDPD (args, vpns, ip):
 
 				# Re-check the same CID if it looked valid
 				if enc:
-					process = launchProccess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
+					process = launchProcess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
 					process.wait()
 
 					enc = False
@@ -831,19 +820,19 @@ def enumerateGroupID (args, vpns):
 			continue # If Cisco DPD enumeration, continue
 
 		# Try to guess the "unvalid client ID" message
-		process = launchProccess ("%s --aggressive --trans=%s --id=badgroupiker123456 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
+		process = launchProcess ("%s --aggressive --trans=%s --id=badgroupiker123456 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
 		message1 = sub (r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip() )
 
 		delay (DELAY)
 
-		process = launchProccess ("%s --aggressive --trans=%s --id=badgroupiker654321 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
+		process = launchProcess ("%s --aggressive --trans=%s --id=badgroupiker654321 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
 		message2 = sub (r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip() )
 
 		delay (DELAY)
 
-		process = launchProccess ("%s --aggressive --trans=%s --id=badgroupiker935831 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
+		process = launchProcess ("%s --aggressive --trans=%s --id=badgroupiker935831 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
 		message3 = sub (r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip() )
 
@@ -872,7 +861,7 @@ def enumerateGroupID (args, vpns):
 			for cid in fdict:
 				cid = cid.strip()
 
-				process = launchProccess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
+				process = launchProcess ("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
 				process.wait()
 				msg = sub (r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip() )
 
@@ -903,7 +892,7 @@ def parseResults (args, vpns):
 	HASH_ANNOUNCEMENT = False
 	KE_ANNOUNCEMENT = False
 	AUTH_ANNOUNCEMENT = False
-	ENC_ANNOUNCEMENT_TEXT = "Weak encryption algorithms are those considered broken by industry standards or key is less than 128 bits."
+	ENC_ANNOUNCEMENT_TEXT = "Weak encryption algorithms are those considered broken by industry standards or key length is less than 128 bits."
 	HASH_ANNOUNCEMENT_TEXT = "Weak hash algorithms are those considered broken by industry standards."
 	KE_ANNOUNCEMENT_TEXT = "Weak key exchange groups are those considered broken by industry standards or modulus is less than 2048 bits."
 	AUTH_ANNOUNCEMENT_TEXT = "Weak authentication methods are those not using multifactor authentication or not requiring mutual authentication."
