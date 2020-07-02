@@ -4,9 +4,15 @@ iker.py script courtesy of Portcullis Security
 
 https://labs.portcullis.co.uk/tools/iker/
 
-Modifications from original v1.1 script:
+Modifications from original v1.0 script:
 	Added shebang for python binary above
-
+	
+Modifications from v1.1 script:
+	Added all known algorithms
+	Added Python2+ and Python3+ support
+	Updated flaws with industry standards
+	Removed flaws stating static risk as risk is dynamic
+	Fixed grammar and updated technical terms (key exchange over Diffie-Hellman)
 '''
 ###############################################################################
 ### iker.py
@@ -18,7 +24,7 @@ Modifications from original v1.1 script:
 ###                                http://www.gnu.org/licenses/gpl-3.0.html
 ###
 ### From a IP address/range or a list of them, iker.py uses ike-scan to
-### look for common misconfiguration in VPN concentrators.
+### look for common misconfiguration in IKE implementations.
 ###
 ### In this version, iker does:
 ###
@@ -32,22 +38,7 @@ Modifications from original v1.1 script:
 ### * analyze results to extract actual issues
 ### * support 2 output formats
 ###
-### FIXED BUGS / NEW FEATURES:
-###
-### * Identify if ike-scan launches any error during the scan
-### * Improved the GUI by adding a progressbar and the current transform
-### * Skip feature
-### * Capability to exit at any time saving results
-### * Fixed a bug that did not identify IKE v2 when IKE v1 was not supported
-###
-### How to use it? That's easy!
-###
-### # python iker.py -i ips.txt -o iker_output.txt -x iker_output.xml -v
-###
-### Use -h option to complete help.
-###
-###
-### Author: Julio Gomez Ortega (JGO@portcullis-security.com)
+### Original author: Julio Gomez Ortega (JGO@portcullis-security.com)
 ###
 ###############################################################################
 
