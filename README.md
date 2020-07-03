@@ -14,6 +14,9 @@ The following features are supported:
 * Parses scan results to identify configuration risks based on industry best-practices
 * Outputs scan to text and XML file formats
 * Supports Python2+ and Python3+
+
+A full list of the supported algorithms and authentication methods can be found here:
+* https://github.com/Zamanry/iker/wiki/IKE-Parameters
 # Requirements
 iker requires ike-scan which can be obtained through its APT/YUM package manager respository or GitHub project:
 1. sudo apt update
