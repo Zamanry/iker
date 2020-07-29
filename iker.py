@@ -866,7 +866,7 @@ def parseResults(args, vpns):
 		fxml.write("<best_practices>\n")
 		fxml.write("\t<encryption algorithms=\"%s\"></encryption>\n" % ENC_ANNOUNCEMENT_TEXT)
 		fxml.write("\t<hash algorithms=\"%s\"></hash>\n" % HASH_ANNOUNCEMENT_TEXT)
-		fxml.write("\t<key_exchange groups=\"%s\"></key>\n" % KE_ANNOUNCEMENT_TEXT)
+		fxml.write("\t<key_exchange groups=\"%s\"></key_exchange>\n" % KE_ANNOUNCEMENT_TEXT)
 		fxml.write("\t<authentication methods=\"%s\"></authentication>\n" % AUTH_ANNOUNCEMENT_TEXT)
 		fxml.write("</best_practices>\n")
 		fxml.write("<services>\n")
