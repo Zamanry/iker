@@ -1502,7 +1502,7 @@ def main():
 		print("\033[91m[*]\033[0m ike-scan could not be found. Please specified the full path with the --ikepath option.")
 		exit(1)
 
-	startTime = strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
+	startTime = strftime("%a, %d %b %Y %H:%M:%S %Z", localtime())
 	printMessage("Starting iker (http://labs.portcullis.co.uk/tools/iker) at %s" % startTime, args.output)
 
 	# 1. Discovery
@@ -1526,7 +1526,7 @@ def main():
 	# 5. Enumerate client IDs
 	enumerateGroupID(args, vpns)
 
-	endTime = strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
+	endTime = strftime("%a, %d %b %Y %H:%M:%S %Z", localtime())
 	printMessage("iker finished enumerating/brute forcing at %s" % endTime, args.output)
 
 	# 6. Parse the results
