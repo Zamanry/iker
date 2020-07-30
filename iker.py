@@ -842,10 +842,13 @@ def enumerateGroupID(args, vpns):
 
 
 ###############################################################################
-def parseResults(args, vpns):
+def parseResults(args, vpns, startTime, endTime):
 	'''This method analyzes the results and prints them where correspond.
 	@param args The command line parameters
 	@param vpns A dictionary to store all the information'''
+	@param startTime A timestamp of when the script began'''
+	@param endTime A timestamp of when the script finished'''
+
 
 	ENC_ANNOUNCEMENT = False
 	HASH_ANNOUNCEMENT = False
@@ -863,6 +866,7 @@ def parseResults(args, vpns):
 	try:
 		fxml = open(pathxml, "a")
 		fxml.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")
+		fxml.write("<?time start=\"%s\" end=\"%s\" ?>\n") % (startTime, endTime)
 		fxml.write("<best_practices>\n")
 		fxml.write("\t<encryption algorithms=\"%s\"></encryption>\n" % ENC_ANNOUNCEMENT_TEXT)
 		fxml.write("\t<hash algorithms=\"%s\"></hash>\n" % HASH_ANNOUNCEMENT_TEXT)
@@ -1498,7 +1502,8 @@ def main():
 		print("\033[91m[*]\033[0m ike-scan could not be found. Please specified the full path with the --ikepath option.")
 		exit(1)
 
-	printMessage("Starting iker (http://labs.portcullis.co.uk/tools/iker) at %s" % strftime("%a, %d %b %Y %H:%M:%S +0000", localtime()), args.output)
+	startTime = strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
+	printMessage("Starting iker (http://labs.portcullis.co.uk/tools/iker) at %s" % startTime, args.output)
 
 	# 1. Discovery
 	discovery(args, targets, vpns)
@@ -1522,9 +1527,10 @@ def main():
 	enumerateGroupID(args, vpns)
 
 	# 6. Parse the results
-	parseResults(args, vpns)
+	parseResults(args, vpns, startTime, endTime)
 
-	printMessage("iker finished at %s" % strftime("%a, %d %b %Y %H:%M:%S +0000", localtime()), args.output)
+	endTime = strftime("%a, %d %b %Y %H:%M:%S +0000", localtime())
+	printMessage("iker finished at %s" % endTime, args.output)
 
 if __name__ == '__main__':
 	main()
