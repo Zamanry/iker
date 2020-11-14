@@ -19,26 +19,26 @@ A full list of the supported algorithms and authentication methods can be found 
 * https://github.com/Zamanry/iker/wiki/IKE-Parameters
 # Requirements
 iker requires ike-scan which can be obtained through its APT/YUM package manager respository or GitHub project:
-1. sudo apt update
-2. sudo apt install ike-scan -y
+1. `sudo apt update`
+2. `sudo apt install ike-scan -y`
 
 OR
 
 1. Follow the instructions from https://github.com/royhills/ike-scan
 # Installation
 The following steps will describe how to install ike-scan and iker:
-1. git clone https://github.com/zamanry/iker.git
-2. cd ./iker
+1. `git clone https://github.com/zamanry/iker.git`
+2. `cd ./iker`
 # Usage
 The following steps will describe how to use iker:
 ## Single host with base scan
-1. sudo ./iker.py #.#.#.#
+1. `sudo ./iker.py #.#.#.#`
 ## Multiple hosts with all algorithms
-1. sudo ./iker.py -i <hosts.txt> --fullalgs
+1. `sudo ./iker.py -i <hosts.txt> --fullalgs`
 ## Multiple hosts with logging
-1. sudo ./iker.py -i <hosts.txt> -o <output.txt> -x <output.xml>
+1. `sudo ./iker.py -i <hosts.txt> -o <output.txt> -x <output.xml>`
 ## Multiple hosts with specific key exchange groups
-1. sudo ./iker.py -i <hosts.txt> --kegroups="1 2 3 4 5"
+1. `sudo ./iker.py -i <hosts.txt> --kegroups="1 2 3 4 5"`
 # Risk Criteria
 Risk is dynamic to each system. iker's default scan scans only configurations with enough risk which need to be changed. The criteria to be considered a risk are:
 * Weak encryption algorithms are those considered broken by industry standards or key length is less than 128 bits.
