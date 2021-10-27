@@ -172,6 +172,7 @@ def getArguments():
 	parser.add_argument("--fullalgs", action="store_true", help="Equivalent to: --encalgs=\"1 2 3 4 5 6 7/128 7/192 7/256 8 65001 65002 65004 65005\" --hashalgs=\"1 2 3 4 5 6\" --authmethods=\"1 2 3 4 5 6 7 8 9 10 11 128 64221 64223 65001 65003 65005 65007 65009\" --kegroups=\"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30\"")
 	parser.add_argument("--ikepath", type=str, help="The FULL ike-scan path if it is not in the PATH variable and/or the name changed.")
 	parser.add_argument("-c", "--clientids", type=str, help="A file (dictionary) with a client ID per line to enumerate valid client IDs in Aggressive Mode. Default: unset - This test is not launched by default.")
+	parser.add_argument("-n", "--nofingerprint", action="store_true", help="Do not attempt to fingerprint targets.")
 
 	args = parser.parse_args()
 
@@ -602,7 +603,7 @@ def checkEncryptionAlgs(args, vpns):
 								vpns[ip]["transforms"].append(("%s, %s, %s, %s" % (enc, hsh, auth, group), transform, info))
 								fingerprintVID(args, vpns, info)
 								# If the backoff could not be fingerprinted before...
-								if not vpns[ip]["showbackoff"]:
+								if not args.nofingerprint and not vpns[ip]["showbackoff"]:
 									fingerprintShowbackoff(args, vpns, vpns[ip]["transforms"][0][0], ip)
 
 							current += 1
@@ -658,7 +659,7 @@ def checkAggressive(args, vpns):
 								vpns[ip]["aggressive"].append(("%s, %s, %s, %s" % (enc, hsh, auth, group), transform, info))
 								fingerprintVID(args, vpns, info)
 								# If the backoff could not be fingerprinted before...
-								if not vpns[ip]["showbackoff"]:
+								if not args.nofingerprint and not vpns[ip]["showbackoff"]:
 									fingerprintShowbackoff(args, vpns, vpns[ip]["aggressive"][0][0], ip)
 
 							current += 1
@@ -1515,7 +1516,8 @@ def main():
 
 	# 2. Fingerprint by checking VIDs and by analyzing the service responses
 	fingerprintVID(args, vpns)
-	fingerprintShowbackoff(args, vpns)
+	if not args.nofingerprint:
+		fingerprintShowbackoff(args, vpns)
 
 	# 3. Ciphers
 	checkEncryptionAlgs(args, vpns)
