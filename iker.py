@@ -532,6 +532,7 @@ def fingerprintShowbackoff(args, vpns, transform="", vpnip=""):
 			if vpnip and vpnip != ip:
 				continue
 
+			transform = transform.replace(" ", "")
 			process = launchProcess("%s --showbackoff %s %s" % (FULLIKESCANPATH, ((transform and ("--trans="+transform) or transform)), ip))
 			vpns[ip]["showbackoff"] = ""
 			process.wait()
@@ -591,11 +592,12 @@ def checkEncryptionAlgs(args, vpns):
 								if "Starting ike-scan" in line or "Ending ike-scan" in line or line.strip() == "":
 									continue
 
+								line = line.strip()
 								info += line + "\n"
 
 								if "SA=" in line:
 									new = True
-									transform = line.strip()[4:-1]
+									transform = line[4:-1]
 									printMessage("\033[92m[*]\033[0m Transform found: %s" % transform, args.output)
 
 							if new:
