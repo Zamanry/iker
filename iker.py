@@ -502,7 +502,7 @@ def fingerprintVID(args, vpns, handshake=None):
 			if "SA=" in line:
 				transform = line.strip()[4:-1]
 
-			if "VID=" in line and "(" in line and ")" in line and "draft-ietf" not in line and "IKE Fragmentation" not in line and "Dead Peer Detection" not in line and "XAUTH" not in line and "RFC 3947" not in line and "Heartbeat Notify" not in line:
+			if "VID=" in line and "(" in line and ")" in line and "draft-ietf" not in line and "IKE Fragmentation" not in line and "Dead Peer Detection" not in line and "XAUTH" not in line and "RFC 3947" not in line and "HeartBeat_Notify" not in line:
 
 				vid = line[line.index('(')+1:line.index(')')]
 
