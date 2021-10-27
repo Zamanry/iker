@@ -451,8 +451,8 @@ def checkIKEv2(args, targets, vpns):
 							vpns[ip]["v2"] = True
 						else:
 							printMessage("[*] IKE version 1 support was not identified in this host (%s). iker will not perform more tests against this host." % ip, args.output)
-					# else:
-						# printMessage("\033[91m[*]\033[0m IKE version 2 is not supported by %s" % ip, args.output)
+					else:
+						printMessage("\033[91m[*]\033[0m IKE version 2 is not supported by %s" % target, args.output)
 					ip = line.split()[0]
 					info = line
 
@@ -462,8 +462,8 @@ def checkIKEv2(args, targets, vpns):
 					vpns[ip]["v2"] = True
 				else:
 					printMessage("[*] IKE version 1 support was not identified in this host (%s). iker will not perform more tests against this host." % ip, args.output)
-			# else:
-			# printMessage("\033[91m[*]\033[0m IKE version 2 is not supported by %s" % ip, args.output)
+			else:
+				printMessage("\033[91m[*]\033[0m IKE version 2 is not supported by %s" % target, args.output)
 
 		# Complete those that don't support it
 		for ip in list(vpns.keys()):
