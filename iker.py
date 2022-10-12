@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 '''
 iker.py script courtesy of Portcullis Security
 
@@ -33,6 +33,7 @@ Modifications from v1.1 script:
 
 from sys import exit, stdout
 from os import geteuid
+import io
 import subprocess
 import argparse
 import re
@@ -387,8 +388,7 @@ def discovery(args, targets, vpns):
 		ip = None
 		info = ""
 
-		for line in process.stdout.readlines():
-			line = str(line)
+		for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
 			if not line.split() or 'Starting ike-scan' in line or 'Ending ike-scan' in line:
 				continue
 
@@ -438,8 +438,7 @@ def checkIKEv2(args, targets, vpns):
 			ip = None
 			info = ""
 
-			for line in process.stdout.readlines():
-				line = str(line)
+			for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
 				if not line.split() or "Starting ike-scan" in line or "Ending ike-scan" in line:
 					continue
 
@@ -539,7 +538,7 @@ def fingerprintShowbackoff(args, vpns, transform="", vpnip=""):
 			process.wait()
 
 			# Fingerprint based on the VPN service behavior
-			for line in process.stdout.readlines():
+			for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
 				line = str(line)
 				if "Implementation guess:" in line:
 
@@ -585,11 +584,10 @@ def checkEncryptionAlgs(args, vpns):
 							process = launchProcess("%s -M --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, enc, hsh, auth, group, ip))
 							process.wait()
 
-							output = process.stdout.read()
+							output = io.TextIOWrapper(process.stdout, encoding="utf-8")
 							info = ""
 							new = False
-							for line in output.splitlines():
-								line = str(line)
+							for line in output:
 								if "Starting ike-scan" in line or "Ending ike-scan" in line or line.strip() == "":
 									continue
 
@@ -641,12 +639,11 @@ def checkAggressive(args, vpns):
 							process = launchProcess("%s -M --aggressive -P%s_handshake.txt --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, ip, enc, hsh, auth, group, ip))
 							process.wait()
 
-							output = process.stdout.read()
+							output = io.TextIOWrapper(process.stdout, encoding="utf-8")
 
 							info = ""
 							new = False
-							for line in output.splitlines():
-								line = str(line)
+							for line in output:
 								if "Starting ike-scan" in line or "Ending ike-scan" in line or line.strip() == "":
 									continue
 
@@ -687,7 +684,7 @@ def enumerateGroupIDCiscoDPD(args, vpns, ip):
 	process.wait()
 
 	possible = True
-	for line in process.stdout.readlines():
+	for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
 		line = str(line)
 		if "dead peer" in line.lower():
 			possible = False
@@ -707,7 +704,7 @@ def enumerateGroupIDCiscoDPD(args, vpns, ip):
 				process = launchProcess("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
 				process.wait()
 
-				output = process.stdout.readlines()[1].strip()
+				output = io.TextIOWrapper(process.stdout, encoding="utf-8")[1].strip()
 
 				# Check if the service is still responding
 				msg = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', output)
@@ -732,7 +729,7 @@ def enumerateGroupIDCiscoDPD(args, vpns, ip):
 					process.wait()
 
 					enc = False
-					for line in process.stdout.readlines():
+					for line in io.TextIOWrapper(process.stdout, encoding="utf-8"):
 						line = str(line)
 						if "dead peer" in line.lower():
 							vpns[ip]["clientids"].append(cid)
@@ -784,19 +781,19 @@ def enumerateGroupID(args, vpns):
 		#  Try to guess the "unvalid client ID" message
 		process = launchProcess("%s --aggressive --trans=%s --id=badgroupiker123456 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
-		message1 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip())
+		message1 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', io.TextIOWrapper(process.stdout, encoding="utf-8")[1].strip())
 
 		delay(DELAY)
 
 		process = launchProcess("%s --aggressive --trans=%s --id=badgroupiker654321 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
-		message2 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip())
+		message2 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', io.TextIOWrapper(process.stdout, encoding="utf-8")[1].strip())
 
 		delay(DELAY)
 
 		process = launchProcess("%s --aggressive --trans=%s --id=badgroupiker935831 %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], ip))
 		process.wait()
-		message3 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip())
+		message3 = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', io.TextIOWrapper(process.stdout, encoding="utf-8")[1].strip())
 
 		delay(DELAY)
 
@@ -825,7 +822,7 @@ def enumerateGroupID(args, vpns):
 
 				process = launchProcess("%s --aggressive --trans=%s --id=%s %s" % (FULLIKESCANPATH, vpns[ip]["aggressive"][0][0], cid, ip))
 				process.wait()
-				msg = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', process.stdout.readlines()[1].strip())
+				msg = sub(r'(HDR=\()[^\)]*(\))', r'\1xxxxxxxxxxx\2', io.TextIOWrapper(process.stdout, encoding="utf-8")[1].strip())
 
 				if not msg:
 					cnt += 1
