@@ -170,7 +170,7 @@ def getArguments():
 	parser.add_argument("--hashalgs", type=str, default="1 2", help="The hash algorithms to check. Default: MD5(1) and SHA1(2). Example: --hashalgs=\"1 2 3 4 5 6\"")
 	parser.add_argument("--authmethods", type=str, default="1 3 64221 65001", help="The authorization methods to check. Default: PSK(1), RSA Sig(3), Hybrid(64221), XAUTH(65001). Example: --authmethods=\"1 2 3 4 5 6 7 8 64221 65001\"")
 	parser.add_argument("--kegroups", type=str, default="1 2 5 14", help="The key exchange groups to check. Default: MODP-768(1), MODP-1024(2), MODP-1536(5) and MODP-2048(14). Example: --kegroups=\"1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18\"")
-	parser.add_argument("--fullalgs", action="store_true", help="Equivalent to known sets of encalgs, hashalgs, authmethods and keygroups")
+	parser.add_argument("--fullalgs", action="store_true", help="Equivalent to known sets of encalgs, hashalgs, authmethods and keygroups (NOTE: This may take a while!)")
 	parser.add_argument("--ikepath", type=str, help="The FULL ike-scan path if it is not in the PATH variable and/or the name changed.")
 	parser.add_argument("-c", "--clientids", type=str, help="A file (dictionary) with a client ID per line to enumerate valid client IDs in Aggressive Mode. Default: unset - This test is not launched by default.")
 	parser.add_argument("-n", "--nofingerprint", action="store_true", help="Do not attempt to fingerprint targets.")
