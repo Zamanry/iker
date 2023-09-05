@@ -148,7 +148,9 @@ def getArguments():
 	global VERBOSE
 	global FULLIKESCANPATH
 	global ENCLIST
+	global ENCLISTv2
 	global HASHLIST
+	global HASHLISTv2
 	global AUTHLIST
 	global GROUPLIST
 	global XMLOUTPUT
