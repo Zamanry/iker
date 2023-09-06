@@ -573,7 +573,7 @@ def checkEncryptionAlgs(args, vpns):
 		for ip in list(vpns.keys()):
 
 			current = 0
-			printMessage("\n[*] Looking for accepted transforms at %s" % ip, args.output)
+			printMessage("\n[*] Looking for accepted IKEv1 transforms at %s" % ip, args.output)
 			vpns[ip]["transforms"] = []
 
 			for enc in ENCLIST:
@@ -616,6 +616,65 @@ def checkEncryptionAlgs(args, vpns):
 			waitForExit(args, vpns, ip, "transforms", vpns[ip]["transforms"])
 
 
+
+###############################################################################
+def checkEncryptionAlgsv2(args, vpns):
+	'''This method tries to discover accepted transforms. The results
+	are written in the vpns variable.
+	@param args The command line parameters
+	@param vpns A dictionary to store all the information'''
+
+	try:
+		top = len(ENCLISTv2) * len(HASHLISTv2) * len(AUTHLIST) * len(GROUPLIST)
+		# current = 0
+		for ip in list(vpns.keys()):
+
+			current = 0
+			printMessage("\n[*] Looking for accepted IKEv2 transforms at %s" % ip, args.output)
+			vpns[ip]["transforms"] = []
+
+			for enc in ENCLIST:
+				for hsh in HASHLIST:
+					for auth in AUTHLIST:
+						for group in GROUPLIST:
+
+							process = launchProcess("%s -M --ikev2 --trans=%s,%s,%s,%s %s" % (FULLIKESCANPATH, enc, hsh, auth, group, ip))
+							process.wait()
+
+							output = io.TextIOWrapper(process.stdout, encoding="utf-8")
+							info = ""
+							new = False
+							for line in output:
+								if "Starting ike-scan" in line or "Ending ike-scan" in line or line.strip() == "":
+									continue
+
+								line = line.strip()
+								info += line + "\n"
+
+								if "SA=" in line:
+									new = True
+									transform = line[4:-1]
+									if "/" in enc: bits = enc.split("/")[1]
+									else: bits = "-"
+									printMessage("\033[92m[*]\033[0m Transform found: %s (Enc-bits: %s) %s" % transform, bits, args.output)
+									
+							if new:
+								vpns[ip]["transforms"].append(("%s, %s, %s, %s" % (enc, hsh, auth, group), transform, info))
+								fingerprintVID(args, vpns, info)
+								# If the backoff could not be fingerprinted before...
+								if not args.nofingerprint and not vpns[ip]["showbackoff"]:
+									fingerprintShowbackoff(args, vpns, vpns[ip]["transforms"][0][0], ip)
+
+							current += 1
+							updateProgressBar(top, current, str(enc)+","+str(hsh)+","+str(auth)+","+str(group))
+							delay(DELAY)
+	except KeyboardInterrupt:
+		if "transforms" not in list(vpns[ip].keys()) or not vpns[ip]["transforms"]:
+			waitForExit(args, vpns, ip, "transforms", [])
+		else:
+			waitForExit(args, vpns, ip, "transforms", vpns[ip]["transforms"])
+
+
 ###############################################################################
 def checkAggressive(args, vpns):
 	'''This method tries to check if aggressive mode is available. If so,
@@ -628,7 +687,7 @@ def checkAggressive(args, vpns):
 		current = 0
 		for ip in list(vpns.keys()):
 
-			printMessage("\n[*] Looking for accepted transforms in aggressive mode at %s" % ip, args.output)
+			printMessage("\n[*] Looking for accepted IKEv1 transforms in aggressive mode at %s" % ip, args.output)
 			vpns[ip]["aggressive"] = []
 
 			for enc in ENCLIST:
@@ -1524,13 +1583,16 @@ def main():
 	# 4. Aggressive Mode
 	checkAggressive(args, vpns)
 
-	# 5. Enumerate client IDs
+	# 5. Ciphers
+	checkEncryptionAlgsv2(args, vpns)
+
+	# 6. Enumerate client IDs
 	enumerateGroupID(args, vpns)
 
 	endTime = strftime("%a, %d %b %Y %H:%M:%S %Z", localtime())
 	printMessage("iker finished enumerating/brute forcing at %s" % endTime, args.output)
 
-	# 6. Parse the results
+	# 7. Parse the results
 	parseResults(args, vpns, startTime, endTime)
 	
 if __name__ == '__main__':
